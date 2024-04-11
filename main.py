@@ -1,8 +1,8 @@
 from pynput import mouse, keyboard
 import pyautogui
-import time
 import threading
-
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 class CaptureRegion:
     def __init__(self):
         self.start_point = None
@@ -27,15 +27,16 @@ class CaptureRegion:
             return False
 
     def on_press(self, key):
-        print(key)
         if key == keyboard.Key.ctrl_l and self.start_point and self.end_point:
             self.capture_region()
 
     def capture_region(self):
         if self.start_point and self.end_point:
             region = (self.start_point[0], self.start_point[1], self.end_point[0] - self.start_point[0], self.end_point[1] - self.start_point[1])
-            print(region)
             screenshot = pyautogui.screenshot(region=region)
+            text = pytesseract.image_to_string(screenshot,lang='jpn')
+            with open('output.txt', 'w', encoding='utf-8') as f:
+                f.write(text)            
             screenshot.save('region_capture.png')
 
 
@@ -48,3 +49,13 @@ keyboard_thread.start()
 
 with mouse.Listener(on_move=capture.on_move, on_click=capture.on_click) as listener:
     listener.join()
+
+def capture_region(self):
+    if self.start_point and self.end_point:
+        region = (self.start_point[0], self.start_point[1], self.end_point[0] - self.start_point[0], self.end_point[1] - self.start_point[1])
+        print(region)
+        screenshot = pyautogui.screenshot(region=region)
+        text = pytesseract.image_to_string(screenshot)
+        with open('output.txt', 'w', encoding='utf-8') as f:
+            f.write(text)
+        screenshot.save('region_capture.png')
